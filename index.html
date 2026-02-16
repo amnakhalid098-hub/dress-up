@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Kawaii Dress-Up Game</title>
+
+<style>
+body{
+  margin:0;
+  font-family:"Comic Sans MS", cursive;
+  background:linear-gradient(#cdeaff,#fdfdff);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.gameBox{
+  background:#ffffffcc;
+  padding:20px;
+  border-radius:25px;
+  box-shadow:0 0 25px rgba(0,0,0,0.15);
+  text-align:center;
+}
+
+/* Scene */
+.scene{
+  width:300px;
+  height:300px;
+  background:url("bg.png") center/cover no-repeat;
+  border-radius:20px;
+  position:relative;
+  margin-bottom:15px;
+  overflow:hidden;
+}
+
+/* SNAP ALIGNMENT ANCHOR */
+.character{
+  position:absolute;
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%);
+  height:90%;
+  aspect-ratio:1/2;
+}
+
+/* ALL LAYERS AUTO FIT */
+.layer{
+  position:absolute;
+  bottom:0;
+  left:50%;
+  transform:translateX(-50%);
+  height:100%;
+  object-fit:contain;
+  transition:.25s ease;
+  pointer-events:none;
+}
+
+/* LAYER ORDER */
+#base{ z-index:1; }
+#shoes{ z-index:2; }
+#bottom{ z-index:3; }
+#top{ z-index:4; }
+#hair{ z-index:5; }
+#bag{ z-index:6; }
+#acc{ z-index:7; }
+
+/* Panels */
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:10px;
+}
+
+.panel{
+  background:linear-gradient(135deg,#ffd6ec,#ffb6d9);
+  padding:8px 12px;
+  border-radius:18px;
+  box-shadow:0 4px 8px rgba(0,0,0,0.1);
+  transition:.2s;
+}
+.panel:hover{ transform:scale(1.05); }
+
+button{
+  border:none;
+  padding:6px 12px;
+  border-radius:12px;
+  background:#ff9fd9;
+  cursor:pointer;
+  margin-top:6px;
+  font-size:13px;
+  transition:.2s;
+  position:relative;
+}
+button:hover{
+  background:#ff7fcf;
+  transform:scale(1.1);
+}
+button::after{
+  content:"✨";
+  position:absolute;
+  left:50%;
+  top:-12px;
+  transform:translateX(-50%) scale(0);
+  opacity:0;
+  transition:.3s;
+}
+button:hover::after{
+  transform:translateX(-50%) scale(1);
+  opacity:1;
+}
+
+#bottomButtons{
+  margin-top:12px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="gameBox">
+
+<div class="scene">
+
+  <!-- SNAP ALIGNMENT CONTAINER -->
+  <div class="character">
+
+    <img id="base" class="layer" src="base.png">
+    <img id="shoes" class="layer" src="shoes1.png">
+    <img id="bottom" class="layer" src="bottom1.png">
+    <img id="top" class="layer" src="top1.png">
+    <img id="hair" class="layer" src="hair1.png">
+    <img id="bag" class="layer" src="bag1.png">
+    <img id="acc" class="layer" src="acc1.png">
+
+  </div>
+
+</div>
+
+<div class="controls">
+
+<div class="panel">Hair<br><button onclick="change('hair',hairs)">Next</button></div>
+<div class="panel">Top<br><button onclick="change('top',tops)">Next</button></div>
+<div class="panel">Bottom<br><button onclick="change('bottom',bottoms)">Next</button></div>
+<div class="panel">Shoes<br><button onclick="change('shoes',shoesArr)">Next</button></div>
+<div class="panel">Accessories<br><button onclick="change('acc',accs)">Next</button></div>
+<div class="panel">Bag<br><button onclick="change('bag',bags)">Next</button></div>
+
+</div>
+
+<div id="bottomButtons">
+<button onclick="randomize()">🎲 Randomize Outfit</button>
+<button onclick="saveSnapshot()">💾 Save Snapshot</button>
+</div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<script>
+let hairs=["hair1.png","hair2.png","hair3.png","hair4.png","hair5.png"];
+let tops=["top1.png","top2.png","top3.png","top4.png","top5.png","top6.png"];
+let bottoms=["bottom1.png","bottom2.png","bottom3.png","bottom4.png"];
+let shoesArr=["shoes1.png","shoes2.png","shoes3.png","shoes4.png","shoes5.png"];
+let accs=["acc1.png","acc2.png","acc3.png","acc4.png","acc5.png"];
+let bags=["bag1.png","bag2.png","bag3.png","bag4.png","bag5.png"];
+
+let index={hair:0,top:0,bottom:0,shoes:0,acc:0,bag:0};
+
+function change(type,array){
+ index[type]++;
+ if(index[type]>=array.length) index[type]=0;
+ animate(type,array[index[type]]);
+}
+
+function animate(id,src){
+ let el=document.getElementById(id);
+ el.style.opacity=0;
+ el.style.transform="translateX(-50%) translateY(10px)";
+ setTimeout(()=>{
+  el.src=src;
+  el.style.opacity=1;
+  el.style.transform="translateX(-50%) translateY(0)";
+ },120);
+}
+
+function randomize(){
+ changeRandom("hair",hairs);
+ changeRandom("top",tops);
+ changeRandom("bottom",bottoms);
+ changeRandom("shoes",shoesArr);
+ changeRandom("acc",accs);
+ changeRandom("bag",bags);
+}
+
+function changeRandom(type,array){
+ index[type]=Math.floor(Math.random()*array.length);
+ animate(type,array[index[type]]);
+}
+
+function saveSnapshot(){
+ html2canvas(document.querySelector(".scene")).then(canvas=>{
+  let link=document.createElement("a");
+  link.download="outfit.png";
+  link.href=canvas.toDataURL();
+  link.click();
+ });
+}
+</script>
+
+</body>
+</html>
